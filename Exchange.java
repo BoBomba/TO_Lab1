@@ -3,7 +3,7 @@ public class Exchange {
     private Waluta W2;
     private double amount;
 
-    public Exchange(Waluta W1, Waluta W2, double amount) {
+    public Exchange() {
         this.W1 = W1;
         this.W2 = W2;
         this.amount = amount;
@@ -34,8 +34,7 @@ public class Exchange {
     }
 
     public double result() {
-        // Tutaj możesz zaimplementować logikę przeliczania walut na podstawie kursów i ilości.
-        // W przykładzie poniżej zakładamy, że kurs przelicznika W1 na W2 wynosi 2.
         return amount * W1.getKurs() / W2.getKurs();
     }
+
 }

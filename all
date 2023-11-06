@@ -1,0 +1,408 @@
+public class Waluta {
+    private String nazwa;
+    private double przelicznik;
+    private String kodWaluty;
+    private double kurs;
+
+    public Waluta(String nazwa, double przelicznik, String kodWaluty, double kurs) {
+        this.nazwa = nazwa;
+        this.przelicznik = przelicznik;
+        this.kodWaluty = kodWaluty;
+        this.kurs = kurs;
+    }
+
+    public String getNazwa() {
+        return nazwa;
+    }
+
+    public void setNazwa(String nazwa) {
+        this.nazwa = nazwa;
+    }
+
+    public double getPrzelicznik() {
+        return przelicznik;
+    }
+
+    public void setPrzelicznik(double przelicznik) {
+        this.przelicznik = przelicznik;
+    }
+
+    public String getKodWaluty() {
+        return kodWaluty;
+    }
+
+    public void setKodWaluty(String kodWaluty) {
+        this.kodWaluty = kodWaluty;
+    }
+
+    public double getKurs() {
+        return kurs;
+    }
+
+    public void setKurs(double kurs) {
+        this.kurs = kurs;
+    }
+
+    public boolean equals(Waluta innaWaluta) {
+        if (this == innaWaluta) {
+            return true;
+        }
+        if (innaWaluta == null || getClass() != innaWaluta.getClass()) {
+            return false;
+        }
+        return kodWaluty.equals(innaWaluta.kodWaluty);
+    }
+}
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Ccollection {
+    private List<Waluta> col;
+
+    public Ccollection() {
+        this.col = new ArrayList<>();
+    }
+
+    public List<Waluta> getCol() {
+        return col;
+    }
+
+    public Waluta getItem(Waluta waluta) {
+        for (Waluta w : col) {
+            if (w.equals(waluta)) {
+                return w;
+            }
+        }
+        return null;
+    }
+
+    public boolean removeItem(Waluta waluta) {
+        return col.remove(waluta);
+    }
+
+    public void addItem(Waluta waluta) {
+        col.add(waluta);
+    }
+
+    public Waluta setItem(Waluta newWaluta) {
+        for (int i = 0; i < col.size(); i++) {
+            if (col.get(i).equals(newWaluta)) {
+                col.set(i, newWaluta);
+                return newWaluta;
+            }
+        }
+        return null;
+    }
+}
+
+
+public class Format {
+    private byte[] byteData;
+    private Ccollection ccollection;
+
+    public Format(Ccollection col) {
+        this.ccollection = col;
+    }
+
+    public void setByte(byte[] byteData) {
+        this.byteData = byteData;
+    }
+
+    public Ccollection getCollection() {
+        return ccollection;
+    }
+}
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class DataProvider {
+    // Update the URL to the NBP XML source
+    private String url = "https://www.nbp.pl/kursy/xml/lasta.xml";
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public byte[] getData() {
+        try {
+            URL xmlUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) xmlUrl.openConnection();
+
+            // Set the request method to GET (you can change it if needed)
+            connection.setRequestMethod("GET");
+
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // Read the response data from the connection
+                InputStream inputStream = connection.getInputStream();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+
+                // Convert the response data to a byte array
+                byte[] data = outputStream.toByteArray();
+
+                // Close the streams and disconnect the connection
+                outputStream.close();
+                inputStream.close();
+                connection.disconnect();
+
+                return data;
+            } else {
+                // Handle the case where the HTTP request was not successful
+                System.err.println("HTTP request failed with response code: " + responseCode);
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+
+public class Exchange {
+    private Waluta W1;
+    private Waluta W2;
+    private double amount;
+
+    public Exchange() {
+        this.W1 = W1;
+        this.W2 = W2;
+        this.amount = amount;
+    }
+
+    public void setW1(Waluta W1) {
+        this.W1 = W1;
+    }
+
+    public Waluta getW1() {
+        return W1;
+    }
+
+    public void setW2(Waluta W2) {
+        this.W2 = W2;
+    }
+
+    public Waluta getW2() {
+        return W2;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public double result() {
+        if (W1 == null || W2 == null) {
+            System.out.println("Wybierz waluty do przeliczenia.");
+            return 0.0; // Dodaj obsługę, gdy jedna z walut jest nieustawiona
+        }
+
+        if (W1.getKurs() == 0 || W2.getKurs() == 0) {
+            System.out.println("Kursy walut nieustawione.");
+            return 0.0; // Dodaj obsługę, gdy kursy są zerowe
+        }
+        return amount * W1.getKurs() / W2.getKurs();
+    }
+}
+
+public interface UserInterface {
+    void showAll();
+
+    void exchange();
+    void showExchange();
+}
+
+public class Singleton {
+    private static Singleton singleton = new Singleton();
+
+    private DataProvider dataProvider;
+    private Exchange exchange;
+    private UserInterface userInterface;
+    private Format format;
+
+
+    private Singleton() {
+        dataProvider = new DataProvider();
+        userInterface = new UserInterfaceImpl();
+        exchange = new Exchange();
+        format = new Format(new Ccollection());
+    }
+
+    public static Singleton getInstance() {
+        return singleton;
+    }
+
+    public DataProvider getDataProvider() {
+        return dataProvider;
+    }
+
+    public Exchange getExchange() {
+        return exchange;
+    }
+
+    public UserInterface getUserInterface() {
+        return userInterface;
+    }
+
+    public Format getFormat() {
+        return format;
+    }
+}
+
+import java.util.Scanner;
+
+public class Cmd {
+    private UserInterface userInterface;
+    private Singleton singleton;
+
+    public Cmd() {
+        singleton = Singleton.getInstance();
+        userInterface = singleton.getUserInterface();
+    }
+
+    public void start() {
+        Scanner scanner = new Scanner(System.in);
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("Wybierz opcję:");
+            System.out.println("1. Wyświetl dostępne waluty");
+            System.out.println("2. Wykonaj przeliczenie walut");
+            System.out.println("3. Wyjście");
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    userInterface.showAll();
+                    break;
+                case 2:
+                    userInterface.exchange();
+                    break;
+                case 3:
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Nieprawidłowa opcja. Wybierz ponownie.");
+            }
+        }
+
+        scanner.close();
+    }
+
+    public static void main(String[] args) {
+        Cmd cmd = new Cmd();
+        cmd.start();
+    }
+}
+
+
+import java.util.Scanner;
+
+public class UserInterfaceImpl implements UserInterface {
+    private Singleton singleton;
+    private Exchange exchange;
+
+    public UserInterfaceImpl() {
+
+    }
+
+    @Override
+    public void showAll() {
+        // Implementacja wyświetlania dostępnych walut
+        singleton = Singleton.getInstance();
+        Ccollection collection = singleton.getFormat().getCollection();
+
+        System.out.println("Dostępne waluty:");
+        for (Waluta waluta : collection.getCollection()) {
+            System.out.println("Nazwa: " + waluta.getNazwa());
+            System.out.println("Przelicznik: " + waluta.getPrzelicznik());
+            System.out.println("Kod waluty: " + waluta.getKodWaluty());
+            System.out.println("Kurs: " + waluta.getKurs());
+            System.out.println("---------------------");
+        }
+    }
+
+    @Override
+    public int exchange() {
+        singleton = Singleton.getInstance();
+        exchange = singleton.getExchange();
+
+
+
+        Waluta W1 = exchange.getW1();
+        Waluta W2 = exchange.getW2();
+        double amount = exchange.getAmount();
+
+        if (W1 == null || W2 == null) {
+            System.out.println("Wybierz waluty do przeliczenia.");
+
+        }
+
+        Ccollection collection = Singleton.getInstance().getFormat().getCollection();
+
+        // Znajdź obiekty W1 i W2 na podstawie kodu waluty
+        Waluta foundW1 = null;
+        Waluta foundW2 = null;
+
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Podaj kod waluty dla W1: ");
+        String kodW1 = scanner.next();
+
+        System.out.print("Podaj kod waluty dla W2: ");
+        String kodW2 = scanner.next();
+
+        System.out.print("Podaj ilosc do przeliczenia: ");
+        double ilosc = scanner.nextDouble();
+
+// Teraz możesz przypisać wczytane kody do odpowiednich obiektów W1 i W2
+        exchange.setAmount(ilosc);
+
+        for (Waluta waluta : collection.getCollection()) {
+            if (waluta.getKodWaluty().equals(kodW1)) {
+                W1 = waluta;
+            }
+            if (waluta.getKodWaluty().equals(kodW2)) {
+                W2 = waluta;
+            }
+        }
+
+        if (W1 == null || W2 == null) {
+            System.out.println("Nie można znaleźć wybranych walut w kolekcji.");
+            return 1;
+        }
+
+        if (W1.getKurs() == 0 || W2.getKurs() == 0) {
+            System.out.println("Kursy walut nieustawione.");
+            return 1;
+        }
+
+
+//        double kursW1 = foundW1.getKurs();
+//        double kursW2 = foundW2.getKurs();
+
+        double result = exchange.result();
+
+        System.out.println("Wynik przeliczenia: " + result);
+        return 0;
+    }
+}
+
+

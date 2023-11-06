@@ -8,6 +8,10 @@ public class Ccollection {
         this.col = new ArrayList<>();
     }
 
+    public List<Waluta> getCollection() {
+        return col;
+    }
+
     public Waluta getItem(Waluta waluta) {
         for (Waluta w : col) {
             if (w.equals(waluta)) {
