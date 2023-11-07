@@ -1,17 +1,22 @@
 import java.util.Scanner;
-import java.math.*;
 
 public class UserInterfaceImpl implements UserInterface {
     private Singleton singleton;
-
     private DataProvider dataprovider;
-
     private Format format;
-
     private Exchange exchange;
-
     private Ccollection collection;
 
+    void init(){
+        singleton = Singleton.getInstance();
+        format = singleton.getFormat();
+        dataprovider = singleton.getDataProvider();
+        format.setByte(dataprovider.getData());
+        collection = singleton.getFormat().getCollection();
+        collection.addItem(new Waluta("zloty (Polska)", 1.0, "PLN", 1.0)); //dodanie zlotego polskiego
+        format.setCcollection();
+
+    }
     public UserInterfaceImpl() {
 
     }
@@ -19,15 +24,7 @@ public class UserInterfaceImpl implements UserInterface {
     @Override
     public void showAll() {
         // Implementacja wyświetlania dostępnych walut
-        singleton = Singleton.getInstance();
-        format = singleton.getFormat();
-        dataprovider = singleton.getDataProvider();
-        format.setByte(dataprovider.getData());
-        collection = singleton.getFormat().getCollection();
-        format.setCcollection();
-
-        Waluta zlotypolski = new Waluta("zloty (Polska)",1.0,"PLN",1.0);
-        collection.addItem(zlotypolski);
+        init();
 
         System.out.println("Dostępne waluty:");
         for (Waluta waluta : collection.getCollection()) {
@@ -41,34 +38,40 @@ public class UserInterfaceImpl implements UserInterface {
 
     @Override
     public int exchange() {
-        singleton = Singleton.getInstance();
+        init();
 
         exchange = singleton.getExchange();
-        format = singleton.getFormat();
-        dataprovider = singleton.getDataProvider();
-        format.setByte(dataprovider.getData());
-        collection = singleton.getFormat().getCollection();
-        format.setCcollection();
-
-        Waluta zlotypolski = new Waluta("zloty (Polska)",1.0,"PLN",1.0);
-        collection.addItem(zlotypolski);
 
         System.out.println("Wybierz waluty do przeliczenia.");
 
-        // Znajdź obiekty W1 i W2 na podstawie kodu waluty
-
-
+        String kodW1 = "", kodW2 = "";
+        double ilosc = 0.0;
 
         Scanner scanner = new Scanner(System.in);
+
         System.out.print("Podaj kod waluty dla W1: ");
-        String kodW1 = scanner.next();
+        if (scanner.hasNext()) {
+            kodW1 = scanner.next();
+        } else {
+            System.out.println("To nie jest string");
+            return 1;
+        }
 
         System.out.print("Podaj kod waluty dla W2: ");
-        String kodW2 = scanner.next();
+        if (scanner.hasNext()) {
+            kodW2 = scanner.next();
+        } else {
+            System.out.println("To nie jest string");
+            return 1;
+        }
 
         System.out.print("Podaj ilosc do przeliczenia: ");
-        double ilosc = scanner.nextDouble();
-
+        if (scanner.hasNextDouble()) {
+            ilosc = scanner.nextDouble();
+        } else {
+            System.out.println("To nie jest double");
+            return 1;
+        }
         Waluta W1 = null;
         Waluta W2 = null;
 
@@ -104,7 +107,7 @@ public class UserInterfaceImpl implements UserInterface {
 
         double result = exchange.result();
 
-        System.out.println("Wynik przeliczenia z: "+ exchange.getAmount() + W1.getKodWaluty() + " to " + result + W2.getKodWaluty());
+        System.out.println("Wynik przeliczenia z: " + exchange.getAmount() + " " + W1.getKodWaluty() + " to " + result + " " + W2.getKodWaluty());
         return 0;
     }
 }

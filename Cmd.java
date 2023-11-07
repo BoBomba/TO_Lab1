@@ -10,16 +10,24 @@ public class Cmd {
     }
 
     public void start() {
+
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
+        int choice;
 
         while (!exit) {
+            choice = 0;
             System.out.println("Wybierz opcję:");
             System.out.println("1. Wyświetl dostępne waluty");
             System.out.println("2. Wykonaj przeliczenie walut");
             System.out.println("3. Wyjście");
 
-            int choice = scanner.nextInt();
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+            } else {
+                System.out.println("Wpisz cyfre int opcji!!!");
+                break;
+            }
 
             switch (choice) {
                 case 1:
