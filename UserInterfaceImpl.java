@@ -7,7 +7,7 @@ public class UserInterfaceImpl implements UserInterface {
     private Exchange exchange;
     private Ccollection collection;
 
-    void init(){
+    void init() {
         singleton = Singleton.getInstance();
         format = singleton.getFormat();
         dataprovider = singleton.getDataProvider();
@@ -17,6 +17,7 @@ public class UserInterfaceImpl implements UserInterface {
         format.setCcollection();
 
     }
+
     public UserInterfaceImpl() {
 
     }

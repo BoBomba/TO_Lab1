@@ -8,10 +8,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 
 import java.io.ByteArrayInputStream;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -27,13 +29,11 @@ public class Format {
         this.byteData = byteData;
     }
 
-    public byte[] getByte()
-    {
+    public byte[] getByte() {
         return byteData;
     }
 
-    public void setCcollection()
-    {
+    public void setCcollection() {
         if (byteData != null && byteData.length > 0) {
             try {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -72,6 +72,7 @@ public class Format {
             System.err.println("Brak danych z DataProvider lub wystąpił błąd w pobieraniu danych.");
         }
     }
+
     public Ccollection getCollection() {
         return ccollection;
     }
